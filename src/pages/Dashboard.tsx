@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { LineChart, PieChart, Upload, Clock, CheckCircle, AlertCircle, Book, Briefcase, Award, UserCheck } from 'lucide-react';
+import { LineChart, PieChart, Upload, Clock, CheckCircle, AlertCircle, Book, Briefcase, Award, UserCheck, FileText } from 'lucide-react';
 
 const Dashboard = () => {
   // Mock data for job applications
@@ -80,7 +80,7 @@ const Dashboard = () => {
           <h2 className="text-xl font-semibold mb-4">Resume Status</h2>
           <div className="flex items-center mb-4">
             <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4">
-              <Document className="w-6 h-6 text-blue-600" />
+              <FileText className="w-6 h-6 text-blue-600" />
             </div>
             <div>
               <h3 className="font-medium">Resume.pdf</h3>
