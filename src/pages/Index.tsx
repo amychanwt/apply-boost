@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Hero from '@/components/Hero';
@@ -7,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Star, CheckCircle, Users, FileText, Briefcase, PieChart, Search, Zap, Database, Bot, LineChart, MessageSquare, Bell, Sparkles } from 'lucide-react';
 
 const Index = () => {
-  // Smooth scroll to element when clicking navigation links
   useEffect(() => {
     const handleSmoothScroll = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -86,6 +84,12 @@ const Index = () => {
                 </p>
               </div>
             </div>
+          </div>
+
+          <div className="mt-12 text-center">
+            <Button asChild size="lg">
+              <Link to="/how-it-works">Learn More About How It Works</Link>
+            </Button>
           </div>
         </div>
       </section>

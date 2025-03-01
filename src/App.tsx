@@ -12,6 +12,7 @@ import Applications from "./pages/Applications";
 import NotFound from "./pages/NotFound";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import HowItWorks from "./pages/HowItWorks";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
               <Route path="/profile" element={<Profile />} />
               <Route path="/jobs" element={<JobListings />} />
               <Route path="/applications" element={<Applications />} />
+              <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
