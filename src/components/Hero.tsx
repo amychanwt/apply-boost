@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -66,8 +65,10 @@ const Hero = () => {
                 Get Started
                 <ChevronRight size={16} className="ml-2" />
               </Button>
-              <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                See How It Works
+              <Button size="lg" variant="outline" className="w-full sm:w-auto" asChild>
+                <Link to="/how-it-works">
+                  See How It Works
+                </Link>
               </Button>
             </div>
             

@@ -14,38 +14,83 @@ const HowItWorks = () => {
               Our AI-powered platform streamlines your job search process from start to finish, helping you find and land your dream job faster.
             </p>
           </div>
+
           
-          {/* Process Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-20">
-            <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg text-center">
-              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Search className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+          {/* Three Step Process */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div className="relative">
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-6 h-full border border-gray-100 dark:border-gray-700 shadow-lg transition-all duration-300 hover:shadow-xl">
+                <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-6">
+                  <span className="text-xl font-bold text-blue-600 dark:text-blue-400">1</span>
+                </div>
+                <h3 className="text-xl font-semibold mb-3">Upload Your Profile</h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Create your profile and upload your existing resume and cover letter templates. Our AI analyzes your skills and experience.
+                </p>
               </div>
-              <h3 className="text-xl font-bold mb-3">Find Jobs</h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                Our AI scans thousands of job listings to match your skills and experience with the perfect opportunities.
-              </p>
+              <div className="hidden md:block absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 text-gray-300 dark:text-gray-700">
+                <ArrowRight size={40} />
+              </div>
             </div>
             
-            <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg text-center">
-              <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-                <FileText className="w-8 h-8 text-green-600 dark:text-green-400" />
+            <div className="relative">
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-6 h-full border border-gray-100 dark:border-gray-700 shadow-lg transition-all duration-300 hover:shadow-xl">
+                <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-6">
+                  <span className="text-xl font-bold text-blue-600 dark:text-blue-400">2</span>
+                </div>
+                <h3 className="text-xl font-semibold mb-3">Browse Job Matches</h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Review personalized job recommendations sorted by match percentage. Filter results based on location, salary, and other preferences.
+                </p>
               </div>
-              <h3 className="text-xl font-bold mb-3">Optimize Applications</h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                We customize your resume and cover letter for each job application to maximize your chances of success.
-              </p>
+              <div className="hidden md:block absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 text-gray-300 dark:text-gray-700">
+                <ArrowRight size={40} />
+              </div>
             </div>
             
-            <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg text-center">
-              <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-                <BriefcaseBusiness className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+            <div>
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-6 h-full border border-gray-100 dark:border-gray-700 shadow-lg transition-all duration-300 hover:shadow-xl">
+                <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-6">
+                  <span className="text-xl font-bold text-blue-600 dark:text-blue-400">3</span>
+                </div>
+                <h3 className="text-xl font-semibold mb-3">Apply with Confidence</h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Let our AI optimize your resume and cover letter for each job. Apply directly through our platform and track your application status.
+                </p>
               </div>
-              <h3 className="text-xl font-bold mb-3">Track Progress</h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                Monitor all your applications in one place and receive real-time updates on their status.
-              </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+
+      {/* External Job Sites Section */}
+      <section className="py-16 px-4" id="external-sites">
+        <div className="container mx-auto max-w-6xl">
+          <h2 className="text-3xl font-bold text-center mb-10">Job Websites We Use</h2>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { name: 'LinkedIn', url: 'https://www.linkedin.com/jobs' },
+              { name: 'Indeed', url: 'https://www.indeed.com' },
+              { name: 'Glassdoor', url: 'https://www.glassdoor.com/jobs' },
+              { name: 'ZipRecruiter', url: 'https://www.ziprecruiter.com' },
+              { name: 'Monster', url: 'https://www.monster.com' },
+              { name: 'AngelList', url: 'https://angel.co/jobs' },
+              { name: 'Dice', url: 'https://www.dice.com' },
+              { name: 'CareerBuilder', url: 'https://www.careerbuilder.com' }
+            ].map(site => (
+              <a 
+                key={site.name} 
+                href={site.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 text-center hover:shadow-md transition-shadow"
+              >
+                <span className="font-medium">{site.name}</span>
+                <ExternalLink className="w-4 h-4 ml-2 inline-block" />
+              </a>
+            ))}
           </div>
         </div>
       </section>
@@ -140,39 +185,6 @@ const HowItWorks = () => {
                 </Link>
               </Button>
             </div>
-          </div>
-        </div>
-      </section>
-      
-      {/* External Job Sites Section */}
-      <section className="py-16 px-4" id="external-sites">
-        <div className="container mx-auto max-w-6xl">
-          <h2 className="text-3xl font-bold text-center mb-10">Popular Job Websites</h2>
-          <p className="text-center text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-12">
-            If you prefer to search manually, here are some popular job websites where you can find opportunities. For a more streamlined experience with AI assistance, sign in to your JobMatcher account.
-          </p>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {['LinkedIn', 'Indeed', 'Glassdoor', 'ZipRecruiter', 'Monster', 'AngelList', 'Dice', 'CareerBuilder'].map(site => (
-              <a 
-                key={site} 
-                href="#" 
-                className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 text-center hover:shadow-md transition-shadow"
-              >
-                <span className="font-medium">{site}</span>
-                <ExternalLink className="w-4 h-4 ml-2 inline-block" />
-              </a>
-            ))}
-          </div>
-          
-          <div className="mt-16 text-center">
-            <h3 className="text-xl font-bold mb-4">Want a More Personalized Experience?</h3>
-            <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-8">
-              Sign in to JobMatcher to unlock AI-powered job matching, resume optimization, and application tracking.
-            </p>
-            <Button asChild>
-              <Link to="/login" className="px-8">Get Started</Link>
-            </Button>
           </div>
         </div>
       </section>

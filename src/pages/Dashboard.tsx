@@ -1,24 +1,161 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { LineChart, PieChart, Upload, Clock, CheckCircle, AlertCircle, Book, Briefcase, Award, UserCheck, FileText } from 'lucide-react';
+import { LineChart, PieChart, Upload, Clock, CheckCircle, AlertCircle, Book, Briefcase, Award, UserCheck, FileText, Sparkles, Bot, User } from 'lucide-react';
+import { toast } from "@/components/ui/use-toast";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { ResumeUpload } from '@/components/ResumeUpload';
+import { getCurrentUser, hasResume } from '@/utils/userStorage';
+
+interface ResumeAnalysis {
+  primaryField: {
+    category: string;
+    strengths: string[];
+    opportunities: string[];
+    marketTrends: string[];
+  } | null;
+  secondaryField: {
+    category: string;
+    strengths: string[];
+    opportunities: string[];
+    marketTrends: string[];
+  } | null;
+  crossFieldOpportunities: string[];
+}
 
 const Dashboard = () => {
-  // Mock data for job applications
+  const navigate = useNavigate();
+  const [analysis, setAnalysis] = useState<ResumeAnalysis | null>(null);
+  const [resumeFileName, setResumeFileName] = useState<string>('');
+
+  // Load existing resume data on mount
+  useEffect(() => {
+    const loadResumeData = () => {
+      if (hasResume()) {
+        const user = getCurrentUser();
+        if (user?.resume) {
+          setResumeFileName(user.resume.fileName);
+          // If there are insights stored with the resume, set them
+          if (user.resume.insights) {
+            setAnalysis(user.resume.insights as ResumeAnalysis);
+          }
+        }
+      }
+    };
+
+    loadResumeData();
+  }, []);
+
+  // Handle successful resume upload
+  const handleUploadSuccess = () => {
+    const user = getCurrentUser();
+    if (user?.resume) {
+      setResumeFileName(user.resume.fileName);
+      if (user.resume.insights) {
+        setAnalysis(user.resume.insights as ResumeAnalysis);
+      }
+    }
+  };
+
+  // Updated mock data for job applications
   const applications = [
-    { id: 1, company: 'Tech Solutions Inc.', position: 'Senior Frontend Developer', status: 'Interview Scheduled', date: '2023-06-15', match: '92%' },
-    { id: 2, company: 'DataDrive Analytics', position: 'Data Scientist', status: 'Under Review', date: '2023-06-10', match: '88%' },
-    { id: 3, company: 'Innovate AI', position: 'Machine Learning Engineer', status: 'Submitted', date: '2023-06-05', match: '85%' },
-    { id: 4, company: 'Global Systems', position: 'Full Stack Developer', status: 'Rejected', date: '2023-05-28', match: '76%' },
+    { 
+      id: 1, 
+      company: 'Tech Solutions Inc.', 
+      position: 'Senior Frontend Developer', 
+      status: 'Interview Scheduled', 
+      date: '2023-06-15', 
+      match: '92%',
+      appliedBy: 'ai' // new field
+    },
+    { 
+      id: 2, 
+      company: 'DataDrive Analytics', 
+      position: 'Data Scientist', 
+      status: 'Under Review', 
+      date: '2023-06-10', 
+      match: '88%',
+      appliedBy: 'manual'
+    },
+    { 
+      id: 3, 
+      company: 'Innovate AI', 
+      position: 'Machine Learning Engineer', 
+      status: 'Submitted', 
+      date: '2023-06-05', 
+      match: '85%',
+      appliedBy: 'ai'
+    },
+    { 
+      id: 4, 
+      company: 'Global Systems', 
+      position: 'Full Stack Developer', 
+      status: 'Rejected', 
+      date: '2023-05-28', 
+      match: '76%',
+      appliedBy: 'manual'
+    },
   ];
 
   // Mock data for insights
-  const insights = [
-    { id: 1, title: 'Your resume has been optimized for 12 job applications', icon: <CheckCircle className="w-5 h-5 text-green-500" /> },
-    { id: 2, title: 'Add more quantifiable achievements to stand out', icon: <Award className="w-5 h-5 text-amber-500" /> },
-    { id: 3, title: '3 new job matches found based on your profile', icon: <Briefcase className="w-5 h-5 text-blue-500" /> },
-    { id: 4, title: 'Complete your profile to improve match accuracy', icon: <UserCheck className="w-5 h-5 text-purple-500" /> },
-  ];
+  const getInsights = () => {
+    const baseInsights = [
+      { id: 1, title: 'Your resume has been optimized for 12 job applications', icon: <CheckCircle className="w-5 h-5 text-green-500" /> },
+      { id: 2, title: '3 new job matches found based on your profile', icon: <Briefcase className="w-5 h-5 text-blue-500" /> },
+    ];
+
+    // If we have analysis results, add them as insights
+    if (analysis) {
+      const analysisInsights = [];
+
+      // Add primary field insights (2 strengths, 2 opportunities)
+      if (analysis.primaryField) {
+        // Add top 2 strengths
+        analysisInsights.push(
+          ...analysis.primaryField.strengths.slice(0, 2).map((strength, index) => ({
+            id: `strength-${index}`,
+            title: strength,
+            icon: <Award className="w-5 h-5 text-green-500" />
+          }))
+        );
+
+        // Add top 2 opportunities
+        analysisInsights.push(
+          ...analysis.primaryField.opportunities.slice(0, 2).map((opportunity, index) => ({
+            id: `opportunity-${index}`,
+            title: opportunity,
+            icon: <Sparkles className="w-5 h-5 text-yellow-500" />
+          }))
+        );
+      }
+
+      // Add one secondary field opportunity if available
+      if (analysis.secondaryField) {
+        analysisInsights.push({
+          id: 'secondary-opportunity',
+          title: analysis.secondaryField.opportunities[0],
+          icon: <Sparkles className="w-5 h-5 text-blue-500" />
+        });
+      }
+
+      // Add one cross-field opportunity if available
+      if (analysis.crossFieldOpportunities.length > 0) {
+        analysisInsights.push({
+          id: 'cross-field',
+          title: analysis.crossFieldOpportunities[0],
+          icon: <Sparkles className="w-5 h-5 text-purple-500" />
+        });
+      }
+
+      // Return combined insights, limited to 8 total
+      return [...baseInsights, ...analysisInsights].slice(0, 8);
+    }
+
+    // If no analysis, return base insights
+    return baseInsights;
+  };
 
   const getStatusColor = (status) => {
     switch(status) {
@@ -34,47 +171,7 @@ const Dashboard = () => {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Job Search Dashboard</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Job Matches</h2>
-          <p className="text-gray-600 mb-4">You have 3 new job matches</p>
-          <div className="flex items-center justify-between">
-            <div className="text-3xl font-bold text-blue-600">85%</div>
-            <div className="text-sm text-gray-500">Average Match Score</div>
-          </div>
-          <div className="mt-6">
-            <Button className="w-full">
-              <Briefcase className="mr-2 h-4 w-4" />
-              View Matches
-            </Button>
-          </div>
-        </div>
-        
-        <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Active Applications</h2>
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="text-center p-3 bg-blue-50 rounded-lg">
-              <div className="text-xl font-semibold text-blue-600">12</div>
-              <div className="text-sm text-gray-600">Total</div>
-            </div>
-            <div className="text-center p-3 bg-green-50 rounded-lg">
-              <div className="text-xl font-semibold text-green-600">3</div>
-              <div className="text-sm text-gray-600">Interviews</div>
-            </div>
-            <div className="text-center p-3 bg-amber-50 rounded-lg">
-              <div className="text-xl font-semibold text-amber-600">4</div>
-              <div className="text-sm text-gray-600">Under Review</div>
-            </div>
-            <div className="text-center p-3 bg-purple-50 rounded-lg">
-              <div className="text-xl font-semibold text-purple-600">5</div>
-              <div className="text-sm text-gray-600">Submitted</div>
-            </div>
-          </div>
-          <Button variant="outline" className="w-full">
-            <Clock className="mr-2 h-4 w-4" />
-            Track Applications
-          </Button>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
         
         <div className="bg-white shadow rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4">Resume Status</h2>
@@ -83,29 +180,48 @@ const Dashboard = () => {
               <FileText className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <h3 className="font-medium">Resume.pdf</h3>
-              <p className="text-sm text-gray-500">Last optimized: 2 days ago</p>
+              <h3 className="font-medium">{resumeFileName || 'No resume uploaded'}</h3>
+              <p className="text-sm text-gray-500">
+                {analysis ? 'Analysis complete' : 'Upload to analyze'}
+              </p>
             </div>
           </div>
           <div className="bg-blue-50 p-4 rounded-md mb-4">
-            <p className="text-sm text-blue-700">Your resume is optimized for Software Engineer positions</p>
+            <p className="text-sm text-blue-700">
+              {analysis?.primaryField 
+                ? `Your resume is optimized for ${analysis.primaryField.category}${analysis.secondaryField ? ` and ${analysis.secondaryField.category}` : ''} positions`
+                : 'Upload your resume to see optimization suggestions'}
+            </p>
           </div>
-          <div className="flex space-x-2">
-            <Button variant="outline" className="flex-1">
-              <Upload className="mr-2 h-4 w-4" />
-              Update
-            </Button>
-            <Button className="flex-1">
-              Optimize
-            </Button>
+          <ResumeUpload onUploadSuccess={handleUploadSuccess} />
+        </div>
+
+        <div className="bg-white shadow rounded-lg p-6">
+          <h2 className="text-xl font-semibold mb-3">Active Applications</h2>
+          <div className="grid grid-cols-1 gap-2">
+            <div className="text-center p-6 bg-purple-50 rounded-lg">
+              <div className="text-xl font-semibold text-purple-600">5</div>
+              <div className="text-sm text-gray-600">Submitted</div>
+            </div>
+            <div className="text-center p-6 bg-blue-50 rounded-lg">
+              <div className="text-xl font-semibold text-blue-600">8</div>
+              <div className="text-sm text-gray-600">Matches Not Applied</div>
+            </div>
           </div>
         </div>
+        
       </div>
       
       <div className="mt-10">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold">Recent Applications</h2>
-          <Button variant="outline" size="sm">View All</Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => navigate('/applications')}
+          >
+            View All
+          </Button>
         </div>
         <div className="bg-white shadow rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
@@ -114,9 +230,9 @@ const Dashboard = () => {
                 <tr>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applied</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Match</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -126,14 +242,24 @@ const Dashboard = () => {
                       <div className="font-medium text-gray-900">{app.company}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.position}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(app.status)}`}>
-                        {app.status}
-                      </span>
-                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.date}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm font-medium text-green-600">{app.match}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        {app.appliedBy === 'ai' ? (
+                          <div className="flex items-center text-purple-600">
+                            <Bot size={16} className="mr-1" />
+                            <span className="text-sm">AI Applied</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center text-blue-600">
+                            <User size={16} className="mr-1" />
+                            <span className="text-sm">Manual</span>
+                          </div>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -151,11 +277,14 @@ const Dashboard = () => {
       <div className="mt-10">
         <h2 className="text-2xl font-bold mb-4">Personalized Insights</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {insights.map((insight) => (
-            <div key={insight.id} className="bg-white shadow rounded-lg p-4 flex items-center">
-              <div className="mr-4">{insight.icon}</div>
+          {getInsights().map((insight) => (
+            <div 
+              key={insight.id} 
+              className="bg-white shadow rounded-lg p-4 flex items-start gap-4 hover:bg-gray-50 transition-colors"
+            >
+              <div className="mt-1">{insight.icon}</div>
               <div className="flex-1">
-                <p className="text-gray-800">{insight.title}</p>
+                <p className="text-gray-800 text-sm">{insight.title}</p>
               </div>
             </div>
           ))}
