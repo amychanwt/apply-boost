@@ -65,7 +65,7 @@ const Header = () => {
           ) : (
             <>
               <Link to="/dashboard" className={`text-sm font-medium transition-colors hover:text-blue-600 ${location.pathname === '/dashboard' ? 'text-blue-600' : 'text-gray-700 dark:text-gray-200'}`}>
-                How It Works
+                Dashboard
               </Link>
               <Link to="/jobs" className={`text-sm font-medium transition-colors hover:text-blue-600 ${location.pathname === '/jobs' ? 'text-blue-600' : 'text-gray-700 dark:text-gray-200'}`}>
                 Browse Jobs
@@ -145,7 +145,7 @@ const Header = () => {
                   onClick={closeMenu}
                 >
                   <LineChart size={18} />
-                  <span>How It Works</span>
+                  <span>Dashboard</span>
                 </Link>
                 <Link 
                   to="/jobs" 

@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Hero from '@/components/Hero';
@@ -38,7 +37,11 @@ const Index = () => {
       <section className="py-24 bg-gray-50 dark:bg-gray-800" id="how-it-works">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">How JobMatcher Works</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              <Link to="/how-it-works" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                How JobMatcher Works
+              </Link>
+            </h2>
             <p className="text-lg text-gray-700 dark:text-gray-300">
               A simple three-step process to supercharge your job search and increase your chances of landing interviews.
             </p>
@@ -237,14 +240,14 @@ const Index = () => {
                   <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mr-3">
                     <Users className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <h3 className="text-xl font-semibold">Public vs. Private Features</h3>
+                  <h3 className="text-xl font-semibold">Features</h3>
                 </div>
                 
                 <div className="space-y-4">
                   <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <h4 className="font-semibold mb-3 flex items-center">
                       <Briefcase className="w-4 h-4 mr-2 text-blue-500" />
-                      <span>Before Login (Public)</span>
+                      <span>Before Login</span>
                     </h4>
                     <ul className="space-y-2 pl-6">
                       <li className="flex items-center">
@@ -269,7 +272,7 @@ const Index = () => {
                   <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                     <h4 className="font-semibold mb-3 flex items-center">
                       <Sparkles className="w-4 h-4 mr-2 text-blue-500" />
-                      <span>After Login (Private)</span>
+                      <span>After Login</span>
                     </h4>
                     <ul className="space-y-2 pl-6">
                       <li className="flex items-center">
@@ -409,113 +412,6 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Pricing Section */}
-      <section className="py-24 bg-white dark:bg-gray-900" id="pricing">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">Simple, Transparent Pricing</h2>
-            <p className="text-lg text-gray-700 dark:text-gray-300">
-              Choose the plan that's right for your job search needs.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-lg transition-all duration-300 hover:shadow-xl">
-              <div className="p-6">
-                <h3 className="text-xl font-semibold mb-2">Free Trial</h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">Perfect for getting started</p>
-                <div className="mb-6">
-                  <span className="text-4xl font-bold">$0</span>
-                  <span className="text-gray-600 dark:text-gray-400">/month</span>
-                </div>
-                <ul className="space-y-3 mb-6">
-                  <li className="flex items-start">
-                    <CheckCircle size={18} className="text-green-500 shrink-0 mt-0.5 mr-2" />
-                    <span className="text-gray-700 dark:text-gray-300">5 Job Applications</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle size={18} className="text-green-500 shrink-0 mt-0.5 mr-2" />
-                    <span className="text-gray-700 dark:text-gray-300">Basic Resume Optimization</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle size={18} className="text-green-500 shrink-0 mt-0.5 mr-2" />
-                    <span className="text-gray-700 dark:text-gray-300">Job Matching</span>
-                  </li>
-                </ul>
-                <Button variant="outline" className="w-full">Start Free</Button>
-              </div>
-            </div>
-            
-            <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden border-2 border-blue-600 shadow-lg transform md:-translate-y-4 transition-all duration-300 hover:shadow-xl relative">
-              <div className="absolute top-0 right-0 bg-blue-600 text-white px-4 py-1 text-sm font-medium rounded-bl-lg">
-                Most Popular
-              </div>
-              <div className="p-8">
-                <h3 className="text-xl font-semibold mb-2">Premium</h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">Best for active job seekers</p>
-                <div className="mb-6">
-                  <span className="text-4xl font-bold">$19</span>
-                  <span className="text-gray-600 dark:text-gray-400">/month</span>
-                </div>
-                <ul className="space-y-3 mb-6">
-                  <li className="flex items-start">
-                    <CheckCircle size={18} className="text-green-500 shrink-0 mt-0.5 mr-2" />
-                    <span className="text-gray-700 dark:text-gray-300">Unlimited Job Applications</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle size={18} className="text-green-500 shrink-0 mt-0.5 mr-2" />
-                    <span className="text-gray-700 dark:text-gray-300">Advanced Resume & Cover Letter Optimization</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle size={18} className="text-green-500 shrink-0 mt-0.5 mr-2" />
-                    <span className="text-gray-700 dark:text-gray-300">Application Tracking System</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle size={18} className="text-green-500 shrink-0 mt-0.5 mr-2" />
-                    <span className="text-gray-700 dark:text-gray-300">Priority Job Matching</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle size={18} className="text-green-500 shrink-0 mt-0.5 mr-2" />
-                    <span className="text-gray-700 dark:text-gray-300">Email Notifications</span>
-                  </li>
-                </ul>
-                <Button className="w-full">Get Started</Button>
-              </div>
-            </div>
-            
-            <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-lg transition-all duration-300 hover:shadow-xl">
-              <div className="p-6">
-                <h3 className="text-xl font-semibold mb-2">Professional</h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">For career advancement</p>
-                <div className="mb-6">
-                  <span className="text-4xl font-bold">$39</span>
-                  <span className="text-gray-600 dark:text-gray-400">/month</span>
-                </div>
-                <ul className="space-y-3 mb-6">
-                  <li className="flex items-start">
-                    <CheckCircle size={18} className="text-green-500 shrink-0 mt-0.5 mr-2" />
-                    <span className="text-gray-700 dark:text-gray-300">Everything in Premium</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle size={18} className="text-green-500 shrink-0 mt-0.5 mr-2" />
-                    <span className="text-gray-700 dark:text-gray-300">Career Coaching (2 sessions/month)</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle size={18} className="text-green-500 shrink-0 mt-0.5 mr-2" />
-                    <span className="text-gray-700 dark:text-gray-300">LinkedIn Profile Optimization</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle size={18} className="text-green-500 shrink-0 mt-0.5 mr-2" />
-                    <span className="text-gray-700 dark:text-gray-300">Interview Preparation</span>
-                  </li>
-                </ul>
-                <Button variant="outline" className="w-full">Choose Plan</Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      
       {/* FAQ Section */}
       <section className="py-24 bg-gray-50 dark:bg-gray-800" id="faq">
         <div className="container mx-auto px-4">
@@ -576,11 +472,7 @@ const Index = () => {
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
                 <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100">
-                  Get Started for Free
-                </Button>
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
-                  <Users size={18} className="mr-2" />
-                  See Success Stories
+                Sign Up for Free
                 </Button>
               </div>
             </div>
