@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Hero from '@/components/Hero';
+import Features from '@/components/Features';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Star, CheckCircle, Users, FileText, Briefcase, PieChart, Search, Zap, Database, Bot, LineChart, MessageSquare, Bell, Sparkles } from 'lucide-react';
 
@@ -29,6 +30,8 @@ const Index = () => {
   return (
     <div className="overflow-hidden">
       <Hero />
+      
+      <Features />
       
       {/* Core Functionalities Section */}
       <section className="py-24 bg-white dark:bg-gray-900" id="core-functionalities">
@@ -130,7 +133,7 @@ const Index = () => {
               <div>
                 <h2 className="text-3xl md:text-4xl font-bold mb-6">Personalized Experience for Every User</h2>
                 <p className="text-lg text-gray-700 dark:text-gray-300 mb-8">
-                  Whether you're browsing as a guest or signed in to your account, Apply Boost provides tools tailored to your needs.
+                  Whether you're browsing as a guest or signed in to your account, JobMatcher provides tools tailored to your needs.
                 </p>
                 
                 <div className="space-y-6">
@@ -275,7 +278,7 @@ const Index = () => {
           <div className="max-w-3xl mx-auto text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">What Job Seekers Say</h2>
             <p className="text-lg text-gray-700 dark:text-gray-300">
-              Join thousands of professionals who have found success with Apply Boost.
+              Join thousands of professionals who have found success with JobMatcher.
             </p>
           </div>
           
@@ -289,7 +292,7 @@ const Index = () => {
                 </div>
               </div>
               <p className="text-gray-700 dark:text-gray-300 mb-6">
-                "After months of job hunting with no luck, Apply Boost helped me land interviews at three top tech companies within two weeks!"
+                "After months of job hunting with no luck, JobMatcher helped me land interviews at three top tech companies within two weeks!"
               </p>
               <div className="flex items-center">
                 <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mr-3">
@@ -357,7 +360,7 @@ const Index = () => {
             <div className="px-6 py-12 sm:p-16 text-center text-white">
               <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Supercharge Your Job Search?</h2>
               <p className="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
-                Join thousands of professionals who found their dream jobs faster with Apply Boost.
+                Join thousands of professionals who found their dream jobs faster with JobMatcher.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
                 <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100">

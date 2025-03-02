@@ -15,37 +15,42 @@ import HowItWorks from "./pages/HowItWorks";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import { AuthProvider } from "./contexts/AuthContext";
+import { ResumeProvider } from '@/contexts/ResumeContext';
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <BrowserRouter>
-          <div className="flex flex-col min-h-screen">
-            <Header />
-            <main className="flex-grow">
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/jobs" element={<JobListings />} />
-                <Route path="/applications" element={<Applications />} />
-                <Route path="/how-it-works" element={<HowItWorks />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<SignUp />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
-        </BrowserRouter>
+        <ResumeProvider>
+          <TooltipProvider>
+            <BrowserRouter>
+              <div className="flex flex-col min-h-screen">
+                <Header />
+                <main className="flex-grow">
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/jobs" element={<JobListings />} />
+                    <Route path="/applications" element={<Applications />} />
+                    <Route path="/how-it-works" element={<HowItWorks />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/signup" element={<SignUp />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </main>
+                <Footer />
+              </div>
+            </BrowserRouter>
+            <Toaster />
+            <Sonner />
+          </TooltipProvider>
+        </ResumeProvider>
       </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+    </QueryClientProvider>
+  );
+}
 
 export default App;

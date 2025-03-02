@@ -10,7 +10,6 @@ export interface ParsedResume {
   text: string;
   fileType: string;
   rawFileData: string;
-  keywords?: string[];
 }
 
 export async function parseResume(file: File): Promise<ParsedResume> {

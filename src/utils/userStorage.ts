@@ -2,41 +2,15 @@ import { parseResume } from './resumeParser';
 
 // Define types and export them
 export interface JobMatch {
-  id: string;
+  id: number;
   title: string;
   company: string;
   location: string;
-  description: string;
-  url: string;
   matchScore: number;
+  description: string;
+  requirements: string[];
+  url: string;
   postedDate: string;
-  appliedDate?: string;
-  requirements?: string[];
-  salary?: string;
-}
-
-export interface Resume {
-  fileName: string;
-  fileData: string;
-  uploadDate: string;
-  parsedText?: string;
-  keywords?: string[];
-  lastModified?: number;
-  insights?: {
-    primaryField: {
-      category: string;
-      strengths: string[];
-      opportunities: string[];
-      marketTrends: string[];
-    } | null;
-    secondaryField: {
-      category: string;
-      strengths: string[];
-      opportunities: string[];
-      marketTrends: string[];
-    } | null;
-    crossFieldOpportunities: string[];
-  };
 }
 
 export interface UserData {
@@ -51,9 +25,13 @@ export interface UserData {
       min?: number;
       max?: number;
     };
-    skills?: string[];
   };
-  resume?: Resume;
+  resume?: {
+    fileName: string;
+    fileData: string;
+    uploadDate: string;
+    parsedText?: string;
+  };
   coverLetter?: {
     fileName: string;
     fileData: string;
@@ -114,12 +92,7 @@ export function updateCurrentUser(updates: Partial<UserData>): void {
 }
 
 // Update save resume function to handle both raw data and parsed text
-export async function saveResume(
-  fileName: string, 
-  fileData: string, 
-  parsedText: string,
-  keywords: string[] = []
-): Promise<void> {
+export async function saveResume(fileName: string, fileData: string, parsedText: string): Promise<void> {
   try {
     // First check if user is logged in
     if (!isLoggedIn()) {
@@ -131,46 +104,37 @@ export async function saveResume(
       throw new Error('No user found');
     }
 
-    // Create the resume update object with all necessary data
+    // Create the resume update object
     const resumeUpdate = {
       fileName,
-      fileData,
+      fileData, // This is the base64 data
       uploadDate: new Date().toISOString(),
-      parsedText,
-      keywords,
-      lastModified: Date.now()
+      parsedText // This is the extracted text content
     };
 
-    // Update the user data with the new resume information
+    // Update both the current user and the users array
     const updatedUser = {
       ...currentUser,
-      resume: resumeUpdate,
-      // Store keywords in user preferences for easy access
-      preferences: {
-        ...currentUser.preferences,
-        skills: keywords // Store keywords as skills for job matching
-      }
+      resume: resumeUpdate
     };
 
-    // Save to localStorage
+    // Save to current user
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedUser));
 
-    // Also update the user in the users array for persistence
+    // Also update the user in the users array
     const users = getUsers();
     const updatedUsers = users.map(user => 
       user.id === currentUser.id 
-        ? updatedUser
+        ? { ...user, resume: resumeUpdate }
         : user
     );
     localStorage.setItem('users', JSON.stringify(updatedUsers));
 
     // Verify the update was successful
     const verifyUser = getCurrentUser();
-    if (!verifyUser?.resume?.fileData || !verifyUser?.resume?.keywords) {
+    if (!verifyUser?.resume?.fileData) {
       throw new Error('Failed to save resume data');
     }
-
-    console.log('Resume saved successfully with keywords:', keywords);
   } catch (error) {
     console.error('Error saving resume:', error);
     throw error;
@@ -312,7 +276,7 @@ export async function preloadTestResume(): Promise<void> {
           console.log('Resume parsed successfully');
           
           // Save the resume
-          await saveResume('Sample_Software_Developer_Resume.pdf', base64Data, parsedResume.text || '', parsedResume.keywords || []);
+          await saveResume('Sample_Software_Developer_Resume.pdf', base64Data, parsedResume.text || '');
           console.log('Resume saved to user storage');
           
           resolve(undefined);
@@ -337,16 +301,4 @@ export async function preloadTestResume(): Promise<void> {
     console.error('Error preloading test resume:', error);
     throw error; // Re-throw to handle in the calling code
   }
-}
-
-// Add a new function to retrieve resume keywords
-export function getResumeKeywords(): string[] {
-  const currentUser = getCurrentUser();
-  return currentUser?.resume?.keywords || [];
-}
-
-// Add a function to check if resume exists
-export function hasResume(): boolean {
-  const currentUser = getCurrentUser();
-  return !!(currentUser?.resume?.fileData && currentUser?.resume?.keywords);
 }

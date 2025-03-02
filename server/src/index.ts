@@ -1,16 +1,14 @@
-import express, { Request, Response, NextFunction, Router, RequestHandler } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import multer from 'multer';
 import path from 'path';
 import { config } from 'dotenv';
 import fs from 'fs';
-import pdfParse from 'pdf-parse';
 
 // Load environment variables
 config();
 
 const app = express();
-const router = Router();
 const port = process.env.PORT || 3001;
 
 // Configure multer for file upload
@@ -75,9 +73,9 @@ app.get('/health', (req: Request, res: Response) => {
 });
 
 // Auth endpoints
-const authRouter = express.Router();
+const router = express.Router();
 
-authRouter.post('/signup', async (req: Request, res: Response) => {
+router.post('/signup', async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     console.log('Received signup request for:', email);
@@ -104,7 +102,7 @@ authRouter.post('/signup', async (req: Request, res: Response) => {
   }
 });
 
-authRouter.post('/login', async (req: Request, res: Response) => {
+router.post('/login', async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     console.log('Received login request for:', email);
@@ -136,119 +134,53 @@ authRouter.post('/login', async (req: Request, res: Response) => {
 });
 
 // Mount the auth routes
-app.use('/auth', authRouter);
+app.use('/auth', router);
 
 // Resume upload endpoint
-const handleResumeUpload: RequestHandler = async (req, res) => {
-  try {
-    if (!req.file) {
-      console.log('No file received in request');
-      return res.status(400).json({ message: 'No file uploaded' });
+app.post('/api/resume/upload', (req: Request, res: Response, next: NextFunction) => {
+  console.log('Received upload request');
+  upload.single('resume')(req, res, async (err) => {
+    if (err) {
+      console.error('Upload error:', err);
+      return res.status(400).json({ message: err.message });
     }
 
-    const fileId = req.file.filename;
-    console.log('File uploaded successfully:', fileId);
-
-    // Automatically analyze the resume after upload
     try {
-      const filePath = path.join(uploadDir, fileId);
-      const insights = await analyzeResume(filePath);
-      const keywords = await extractKeywords(filePath);
-      
-      return res.json({
-        message: 'Resume uploaded and analyzed successfully',
-        url: `/uploads/${fileId}`,
-        fileId: fileId,
-        insights: insights,
-        keywords: keywords
-      });
-    } catch (analysisError) {
-      console.error('Analysis error:', analysisError);
-      // Still return success for upload but with analysis error
-      return res.json({
-        message: 'Resume uploaded but analysis failed',
-        url: `/uploads/${fileId}`,
-        fileId: fileId,
-        analysisError: 'Failed to analyze resume'
-      });
-    }
-  } catch (error) {
-    console.error('Error processing upload:', error);
-    return res.status(500).json({ message: 'Failed to upload resume' });
-  }
-};
-
-router.post('/api/resume/upload', upload.single('resume'), handleResumeUpload);
-
-// Function to extract keywords from resume
-async function extractKeywords(filePath: string): Promise<string[]> {
-  try {
-    // Read the PDF file
-    const pdfData = await fs.promises.readFile(filePath);
-    const pdf = await pdfParse(pdfData);
-    
-    // Common job-related terms to boost
-    const jobTerms = new Set([
-      'developer', 'engineer', 'software', 'web', 'mobile', 'frontend', 'backend',
-      'fullstack', 'full-stack', 'programmer', 'architect', 'lead', 'senior', 'junior',
-      'development', 'engineering', 'application', 'apps', 'systems', 'devops', 'cloud'
-    ]);
-
-    // Technical skills to identify
-    const techSkills = new Set([
-      'javascript', 'typescript', 'python', 'java', 'c++', 'ruby', 'php', 'swift',
-      'kotlin', 'flutter', 'react', 'angular', 'vue', 'node', 'express', 'django',
-      'spring', 'aws', 'azure', 'gcp', 'docker', 'kubernetes', 'sql', 'nosql',
-      'mongodb', 'postgresql', 'mysql', 'redis', 'graphql', 'rest', 'api'
-    ]);
-
-    // Split text into words and clean them
-    const words = pdf.text.toLowerCase()
-      .replace(/[^\w\s-]/g, ' ')
-      .split(/\s+/)
-      .filter(word => word.length > 2);
-    
-    // Count word frequency with boosted weights for job terms and tech skills
-    const frequency: { [key: string]: number } = {};
-    words.forEach((word: string) => {
-      if (!commonWords.has(word)) {
-        let weight = 1;
-        if (jobTerms.has(word)) weight = 3;  // Boost job-related terms
-        if (techSkills.has(word)) weight = 2; // Boost technical skills
-        frequency[word] = (frequency[word] || 0) + weight;
+      if (!req.file) {
+        console.log('No file received in request');
+        return res.status(400).json({ message: 'No file uploaded' });
       }
-    });
-    
-    // Get keywords sorted by frequency and boosted weights
-    const keywords = Object.entries(frequency)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 15)
-      .map(([word]) => word);
 
-    // Ensure we have at least one job title term
-    const hasJobTitle = keywords.some((word: string) => jobTerms.has(word));
-    if (!hasJobTitle) {
-      const foundTechSkills = keywords.filter((word: string) => techSkills.has(word));
-      if (foundTechSkills.length > 0) {
-        keywords.unshift(foundTechSkills[0] + ' developer');
-      } else {
-        keywords.unshift('software developer');
+      const fileId = req.file.filename;
+      console.log('File uploaded successfully:', fileId);
+
+      // Automatically analyze the resume after upload
+      try {
+        const filePath = path.join(uploadDir, fileId);
+        const insights = await analyzeResume(filePath);
+        
+        res.json({
+          message: 'Resume uploaded and analyzed successfully',
+          url: `/uploads/${fileId}`,
+          fileId: fileId,
+          insights: insights
+        });
+      } catch (analysisError) {
+        console.error('Analysis error:', analysisError);
+        // Still return success for upload but with analysis error
+        res.json({
+          message: 'Resume uploaded but analysis failed',
+          url: `/uploads/${fileId}`,
+          fileId: fileId,
+          analysisError: 'Failed to analyze resume'
+        });
       }
+    } catch (error) {
+      console.error('Error processing upload:', error);
+      res.status(500).json({ message: 'Failed to upload resume' });
     }
-
-    return keywords;
-  } catch (error) {
-    console.error('Error extracting keywords:', error);
-    return [];
-  }
-}
-
-// Common words to filter out
-const commonWords = new Set([
-  'the', 'and', 'for', 'that', 'with', 'this', 'our', 'your', 'will', 'have',
-  'from', 'they', 'what', 'about', 'when', 'make', 'can', 'all', 'been', 'were',
-  'into', 'some', 'than', 'its', 'time', 'only', 'could', 'other', 'these'
-]);
+  });
+});
 
 // Move analyzeResume function outside the endpoint to be reusable
 const analyzeResume = async (filePath: string) => {
@@ -476,13 +408,10 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   res.status(500).json({ message: err.message || 'Something went wrong!' });
 });
 
-// Use the router
-app.use(router);
-
-// Start the server
+// Start server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
-  console.log('Upload directory:', path.resolve('uploads/'));
+  console.log('Upload directory:', uploadDir);
   console.log('Available endpoints:');
   console.log('- GET  /');
   console.log('- GET  /health');

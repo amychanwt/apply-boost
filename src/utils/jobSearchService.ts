@@ -162,19 +162,9 @@ export async function searchJobs(options: JobSearchOptions = {}): Promise<JobMat
   try {
     console.log('Starting job search with resume and filters:', options);
     
-    // Use stored keywords if available, otherwise extract them
-    let keywords = currentUser.resume.keywords || [];
-    if (keywords.length === 0) {
-      keywords = extractKeywords(currentUser.resume.parsedText);
-      // Update user data with extracted keywords
-      updateCurrentUser({
-        resume: {
-          ...currentUser.resume,
-          keywords
-        }
-      });
-    }
-    console.log('Using keywords:', keywords);
+    // Extract keywords from resume for search
+    const keywords = extractKeywords(currentUser.resume.parsedText);
+    console.log('Extracted keywords:', keywords);
     
     // Calculate how many keywords to use based on number of filters
     const numFilters = Object.values(options).filter(v => v !== undefined).length;

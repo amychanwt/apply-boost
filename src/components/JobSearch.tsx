@@ -1,26 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Spinner } from '@/components/ui/spinner';
 import { useToast } from '@/hooks/use-toast';
 import { searchJobs, getJobSearchResults } from '@/utils/jobSearchService';
 import { getCurrentUser } from '@/utils/userStorage';
-import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import JobCard from '@/components/JobCard';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import JobFilters from './JobFilters';
 import { JobMatch } from '@/utils/userStorage';
-
-interface JobFilters {
-  location?: string;
-  workType?: 'in-person' | 'remote' | 'hybrid' | 'any';
-  employmentType?: 'full-time' | 'part-time' | 'internship' | 'co-op' | 'contract' | 'any';
-  experienceLevel?: 'entry' | 'mid' | 'senior' | 'executive' | 'any';
-  skills?: string[];
-  industries?: string[];
-}
 
 const JobSearch: React.FC = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [jobs, setJobs] = useState<JobMatch[]>([]);
-  const [filters, setFilters] = useState<JobFilters>({});
+  const [filters, setFilters] = useState({});
   const currentUser = getCurrentUser();
   
   // Pagination state
@@ -43,7 +37,7 @@ const JobSearch: React.FC = () => {
       // Use the current user's location if no location filter is set
       const searchFilters = {
         ...filters,
-        location: filters.location || '',
+        location: filters.location || currentUser?.location || '',
       };
       
       const results = await searchJobs(searchFilters);
@@ -66,7 +60,7 @@ const JobSearch: React.FC = () => {
     }
   };
   
-  const handleFiltersChange = (newFilters: JobFilters) => {
+  const handleFiltersChange = (newFilters: any) => {
     setFilters(newFilters);
   };
   
@@ -101,21 +95,8 @@ const JobSearch: React.FC = () => {
         disabled={isLoading}
         className="w-full"
       >
-        {isLoading ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Searching...
-          </>
-        ) : (
-          "Search Jobs"
-        )}
+        {isLoading ? "Searching..." : "Search Jobs"}
       </Button>
-      
-      {isLoading && (
-        <div className="flex justify-center items-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      )}
       
       {jobs.length > 0 && (
         <div className="space-y-4">
@@ -141,13 +122,13 @@ const JobSearch: React.FC = () => {
                 
                 <div className="mt-2 space-y-2">
                   <p className="text-sm">📍 {job.location}</p>
-                  {job.salary && job.salary !== 'Not specified' && (
+                  {job.salary !== 'Not specified' && (
                     <p className="text-sm">💰 {job.salary}</p>
                   )}
                   <p className="text-sm">📅 Posted: {new Date(job.postedDate).toLocaleDateString()}</p>
                 </div>
 
-                {job.requirements && job.requirements.length > 0 && (
+                {job.requirements.length > 0 && (
                   <div className="mt-3">
                     <p className="text-sm font-medium">Key Requirements:</p>
                     <ul className="text-sm list-disc list-inside">

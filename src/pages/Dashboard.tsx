@@ -1,13 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { LineChart, PieChart, Upload, Clock, CheckCircle, AlertCircle, Book, Briefcase, Award, UserCheck, FileText, Sparkles, Bot, User } from 'lucide-react';
 import { toast } from "@/components/ui/use-toast";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { uploadResume, deleteResume, getRecommendedJobs } from '@/services/api';
+import { extractKeywords, saveKeywordsToFile } from '@/utils/keywordExtractor';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ResumeUpload } from '@/components/ResumeUpload';
-import { getCurrentUser, hasResume } from '@/utils/userStorage';
+import { useResumeContext } from '@/contexts/ResumeContext';
 
 interface ResumeAnalysis {
   primaryField: {
@@ -27,37 +34,13 @@ interface ResumeAnalysis {
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [currentFileId, setCurrentFileId] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<ResumeAnalysis | null>(null);
-  const [resumeFileName, setResumeFileName] = useState<string>('');
-
-  // Load existing resume data on mount
-  useEffect(() => {
-    const loadResumeData = () => {
-      if (hasResume()) {
-        const user = getCurrentUser();
-        if (user?.resume) {
-          setResumeFileName(user.resume.fileName);
-          // If there are insights stored with the resume, set them
-          if (user.resume.insights) {
-            setAnalysis(user.resume.insights as ResumeAnalysis);
-          }
-        }
-      }
-    };
-
-    loadResumeData();
-  }, []);
-
-  // Handle successful resume upload
-  const handleUploadSuccess = () => {
-    const user = getCurrentUser();
-    if (user?.resume) {
-      setResumeFileName(user.resume.fileName);
-      if (user.resume.insights) {
-        setAnalysis(user.resume.insights as ResumeAnalysis);
-      }
-    }
-  };
+  const { setHasUploadedResume, setRecommendedJobs } = useResumeContext();
 
   // Updated mock data for job applications
   const applications = [
@@ -167,6 +150,105 @@ const Dashboard = () => {
     }
   };
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check if file is PDF
+    if (file.type !== 'application/pdf') {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a PDF file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please upload a file smaller than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      setIsAnalyzing(true);
+      setHasUploadedResume(false); // Reset state before upload
+      
+      // If there's a previous file, delete it first
+      if (currentFileId) {
+        try {
+          await deleteResume(currentFileId);
+          console.log('Previous resume deleted successfully');
+        } catch (error) {
+          console.error('Error deleting previous resume:', error);
+          // Continue with upload even if delete fails
+        }
+      }
+
+      const result = await uploadResume(file);
+      setUploadedFile(file);
+      setCurrentFileId(result.fileId);
+      
+      // Handle the combined upload and analysis response
+      if (result.insights) {
+        setAnalysis(result.insights);
+        setHasUploadedResume(true); // Set to true only after successful upload and analysis
+
+        // Extract and save keywords from the resume text
+        if (result.parsedText) {
+          const keywords = extractKeywords(result.parsedText);
+          await saveKeywordsToFile(keywords);
+          console.log('Keywords extracted and saved:', keywords);
+        }
+
+        // Get recommended jobs based on the resume
+        try {
+          const recommendedJobs = await getRecommendedJobs();
+          setRecommendedJobs(recommendedJobs);
+          console.log('Recommended jobs fetched:', recommendedJobs);
+        } catch (error) {
+          console.error('Error fetching recommended jobs:', error);
+          toast({
+            title: "Warning",
+            description: "Resume uploaded but couldn't fetch job recommendations. Please try again later.",
+            variant: "destructive",
+          });
+        }
+        
+        toast({
+          title: "Success",
+          description: "Resume uploaded and analyzed successfully. Keywords have been extracted.",
+        });
+      } else if (result.analysisError) {
+        setHasUploadedResume(false);
+        toast({
+          title: "Upload successful, but analysis failed",
+          description: result.analysisError,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      setHasUploadedResume(false);
+      toast({
+        title: "Operation failed",
+        description: error instanceof Error ? error.message : "Failed to process resume",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      setIsAnalyzing(false);
+    }
+  };
+
+  const triggerFileUpload = () => {
+    fileInputRef.current?.click();
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Job Search Dashboard</h1>
@@ -180,9 +262,9 @@ const Dashboard = () => {
               <FileText className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <h3 className="font-medium">{resumeFileName || 'No resume uploaded'}</h3>
+              <h3 className="font-medium">{uploadedFile ? uploadedFile.name : 'Resume.pdf'}</h3>
               <p className="text-sm text-gray-500">
-                {analysis ? 'Analysis complete' : 'Upload to analyze'}
+                {isAnalyzing ? 'Analyzing...' : analysis ? 'Analysis complete' : 'Upload to analyze'}
               </p>
             </div>
           </div>
@@ -193,7 +275,24 @@ const Dashboard = () => {
                 : 'Upload your resume to see optimization suggestions'}
             </p>
           </div>
-          <ResumeUpload onUploadSuccess={handleUploadSuccess} />
+          <div className="flex space-x-2">
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept=".pdf"
+              onChange={handleFileUpload}
+            />
+            <Button 
+              variant="outline" 
+              className="flex-1" 
+              onClick={triggerFileUpload}
+              disabled={isUploading || isAnalyzing}
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              {isUploading ? 'Uploading...' : isAnalyzing ? 'Analyzing...' : 'Upload Resume'}
+            </Button>
+          </div>
         </div>
 
         <div className="bg-white shadow rounded-lg p-6">
@@ -242,6 +341,11 @@ const Dashboard = () => {
                       <div className="font-medium text-gray-900">{app.company}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.position}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(app.status)}`}>
+                        {app.status}
+                      </span>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.date}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm font-medium text-green-600">{app.match}</span>

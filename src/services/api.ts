@@ -151,11 +151,23 @@ interface ResumeAnalysis {
 }
 
 interface UploadResponse {
-  url: string;
-  message: string;
   fileId: string;
-  insights?: ResumeAnalysis;
-  keywords?: string[];
+  insights?: {
+    primaryField: {
+      category: string;
+      strengths: string[];
+      opportunities: string[];
+      marketTrends: string[];
+    } | null;
+    secondaryField: {
+      category: string;
+      strengths: string[];
+      opportunities: string[];
+      marketTrends: string[];
+    } | null;
+    crossFieldOpportunities: string[];
+  };
+  parsedText?: string;
   analysisError?: string;
 }
 
@@ -228,9 +240,9 @@ export interface Job {
   location: string;
   matchScore: number;
   description: string;
-  salary: string;
-  posted: string;
-  skills: string[];
+  requirements: string[];
+  url: string;
+  postedDate: string;
 }
 
 export const getRecommendedJobs = async (): Promise<Job[]> => {
@@ -240,7 +252,15 @@ export const getRecommendedJobs = async (): Promise<Job[]> => {
     const response = await api.get('/api/jobs/recommended');
     console.log('Recommended jobs fetched:', response.data);
     
-    return response.data;
+    // Transform the response to match the required interface
+    const jobs = response.data.map(job => ({
+      ...job,
+      requirements: job.skills || [],
+      url: job.url || `${API_BASE_URL}/jobs/${job.id}`,
+      postedDate: job.posted || new Date().toISOString()
+    }));
+    
+    return jobs;
   } catch (error) {
     console.error('Failed to fetch recommended jobs:', error);
     if (axios.isAxiosError(error)) {
